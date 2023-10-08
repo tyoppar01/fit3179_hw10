@@ -4,13 +4,14 @@
   <script src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.8"></script>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
   <div id="vis"/>
   <script>
-    const spec = {
+    const spec1 = {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "World GDP in 2022",
+  "title": "World GDP",
   "width": 1500,
   "height": 800,
   "data": {
@@ -49,7 +50,7 @@
           "lookup": "properties.NAME",
           "from": {
             "data": {
-              "url": "https://raw.githubusercontent.com/tyoppar01/hw_w9/branch1/data/gdp_data.csv"
+              "url": "https://raw.githubusercontent.com/tyoppar01/hw_w10/master/data/gdp_s1.csv"
             },
             "key": "country_name",
             "fields": ["country_code", "year", "value"]
@@ -67,33 +68,63 @@
           "type": "quantitative",
           "scale": {
             "type": "quantitative",
-            "range": ["#99CC99", "#009933", "#00CC33", "#00FF33"]
+            "domain": [0, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000, 50000000000000],
+            //"domain": "[0, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000]",
+            //"range": ["#99CC99", "#009933", "#00CC33", "#00FF33"] old colour choices
+            "range": ["#D5F5E3", "#66AA66", "#66B2B2", "#45A194", "#33997E", "#008000", "#004C00"],
           }
-        },
+        }, 
         "tooltip": [
           {
             "field": "properties.NAME", 
-            "type": "nominal", 
+            "type":  "nominal", 
             "title": "Country Name"
           },{
             "field": "country_code",
-            "type": "nominal",
+            "type":  "nominal",
             "title": "Country Code"
+            
           },{
             "field": "year",
-            "type": "quantitative",
+            "type":  "quantitative",
+            "title": "Year"
           },{
             "field": "value",
-            "type": "quantitative",
-            "title": "GDP value",
-            "format": ".0f"
+            "type":  "quantitative",
+            "title": "GDP Value",
+            "format":".0f"
           }
         ]
       }
     }
   ],
+  
   "config": {}
 };
+    
+    const spec2 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "title": "GDP in 2022",
+      "width": 600,
+      "height": 400,
+      "data": {
+        "url": "https://raw.githubusercontent.com/tyoppar01/hw_w10/master/data/gdp_s1.csv"
+      },
+      "mark": "circle",
+      "encoding": {
+        "x": {"field": "GDP", "type": "quantitative", "title": "GDP"},
+        "y": {"field": "Country", "type": "nominal", "title": "Country"},
+        "size": {"field": "GDP", "type": "quantitative", "title": "GDP in 2022"}
+      }
+    };
+
+    const spec = {
+      "vconcat": [
+        spec1,
+        spec2
+      ]
+    };
+
     vegaEmbed("#vis", spec, {mode: "vega-lite"}).then(console.log).catch(console.warn);
   </script>
 </body>
