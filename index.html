@@ -8,30 +8,42 @@
 </head>
 <body>
 
-  <div id="vis"/>
+  <div id="vis"></div>
   <script>
 
   const spec1 = {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "title": "World GDP",
-  "width": 1400,
+  "width": 1000,
   "height": 400,
   "data": {
     "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/3_choropleth_map/js/ne_110m_admin_0_countries.topojson",
     "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
-  },
+  },  
+  "params": [{
+    "name": "Year_selection",
+    "value": 2022,
+    "bind": {
+      "input": "range",
+      "min": 2000,
+      "max": 2022,
+      "step": 1,
+      "name": "Year: "
+    }
+  }],
   "projection": {"type": "equalEarth"},
   "layer": [
+    // Initial map code
     {
-      "transform": [
-        {
-          "calculate": "'Data is not available in ' + datum.properties.NAME",
-          "as": "note"
-        }
-      ],
+      "transform": [{
+        "calculate": "'Data is not available in ' + datum.properties.NAME",
+        "as": "note"
+      }],
       "mark": {"type": "geoshape", "fill": "lightgray", "stroke": "white"},
       "encoding": {"tooltip": {"field": "note"}}
     },
+
+    // Ocrean code
     {
       "data": {
         "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/7_others/oceans.topojson",
@@ -39,69 +51,49 @@
       },
       "mark": {"type": "geoshape", "fill": "skyblue"}
     },
+
+    // Graticule code
     {
       "data": {
         "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/2_symbol_map/js/WorldMapWithGraticules.topojson",
         "format": {"type": "topojson", "feature": "ne_110m_graticules_30"}
       },
-      "mark": {"type": "geoshape", "fill": null, "stroke": "lightgray"}
-    },
+      "mark": {"type": "geoshape", "fill": null, "stroke": "lightgray"},
+    },    
+    
+    // Country information code
     {
-      "transform": [
-        {
+      "transform": [{
           "lookup": "properties.NAME",
           "from": {
-            "data": {
-              "url": "https://raw.githubusercontent.com/tyoppar01/hw_w10/master/data/gdp_s1.csv"
-            },
+            "data": { "url": "https://raw.githubusercontent.com/tyoppar01/hw_w10/master/data/gdp_s1.csv" },
             "key": "country_name",
-            "fields": ["country_code", "year", "value"],
-            "filter": {"field": "year", "equal": {"param": "yearSelector"}}
-            }
-        },
-      ],
+            "fields": ["country_code", "year", "value"]
+        }}, 
+       {"filter": {
+        "field": "year",
+        "equal": {"param": "Year_selection"}
+       }
+      }],
       "mark": {
         "type": "geoshape", 
         "stroke": "white"
       },
       "encoding": {
-        "color": {
-          "field": "value",
+        "color": { "field": "value", "type": "quantitative", "title":"GDP value",
+        "scale": {
           "type": "quantitative",
-          "title":"Legends",
-          "scale": {
-            "domain": {
-              "param": "brush"
-            }
-          },
-          "scale": {
-            "type": "quantitative",
-            "domain": [0, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000, 50000000000000],
-            //"domain": "[0, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000]",
-            //"range": ["#99CC99", "#009933", "#00CC33", "#00FF33"] old colour choices
-            "range": ["#D5F5E3", "#66AA66", "#66B2B2", "#45A194", "#33997E", "#008000", "#004C00"],
-          }
-        }, 
-        "tooltip": [
-          {
-            "field": "properties.NAME", 
-            "type":  "nominal", 
-            "title": "Country Name"
-          },{
-            "field": "country_code",
-            "type":  "nominal",
-            "title": "Country Code"
-          },{
-            "field": "year",
-            "type":  "quantitative",
-            "title": "Year"
-          },{
-            "field": "value",
-            "type":  "quantitative",
-            "title": "GDP Value",
-            "format":".0f"
-          }
-        ]
+          "domain": [0, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000, 50000000000000],
+          "range": ["#D5F5E3", "#66AA66", "#66B2B2", "#45A194", "#33997E", "#008000", "#004C00"],
+        }
+      }, 
+        "tooltip": 
+        [{
+            "field": "properties.NAME", "type":  "nominal", "title": "Country Name" },{
+            "field": "country_code", "type":  "nominal", "title": "Country Code" },{
+            "field": "year", "type":  "quantitative", "title": "Year" },{
+            "field": "value", "type":  "quantitative", "title": "GDP Value", "format":".0f"
+        }]
       }
     }
   ],
@@ -111,8 +103,8 @@
   const spec2 = {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "GDP Trend for China and USA over years",
-    "width": 1400,
-    "height": 325,
+    "width": 1000,
+    "height": 400,
     "data": {
       "url": "https://raw.githubusercontent.com/tyoppar01/hw_w10/master/data/gdp_s1.csv",
       "format": {
@@ -120,20 +112,10 @@
       }
     },
     "transform": [
-      {"filter": "datum.year >= 2000 && datum.year <= 2022"}, // Filter data for the desired year range
-      {"filter": "datum.country_name === 'China' || datum.country_name === 'United States of America'"}, // Replace 'Your Country' with the desired country name  
+      {"filter": "datum.year >= 2000 && datum.year <= 2022"},
+      {"filter": "datum.country_name === 'China' || datum.country_name === 'United States of America'"}, 
     ],
-    "mark": "line", // line chart
-    
-    "params": [
-    {
-      "name": "brush",
-      "select": {
-        "type": "interval",
-        "encodings": ["x"]
-      }
-    }
-  ],
+    "mark": "line",
     
     "encoding": {
       "x": {
@@ -141,7 +123,7 @@
         "type": "quantitative", 
         "title": "",
         "axis": { "format": "d" }
-      }, // X-axis represents years
+      },
       "y": {
         "field": "value",
         "type": "quantitative",
@@ -155,7 +137,6 @@
         "field": "country_name", 
         "type": "nominal", 
         "title": "Country"} 
-        // Color encoding to distinguish between the two countries
     },
     "config": {
       "view": {"stroke": "transparent"}
@@ -169,7 +150,12 @@
     ]
   };
 
-  vegaEmbed("#vis", spec, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+  vegaEmbed("#vis", spec1, {mode: "vega-lite"}).then((result) => {
+    // Handle the result here if needed.
+  }).catch((error) => {
+    console.error(error);
+  });
+  
   </script>
 </body>
 </html>
