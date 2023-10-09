@@ -1,0 +1,104 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "Average Price of Property In Melbourne",
+    "width": 600,
+    "height": 500,
+    "params": [
+      {
+        "name": "Year_selection",
+        "value": 2017,
+        "bind": {
+          "input": "range",
+          "min": 2016,
+          "max": 2017,
+          "step": 1,
+          "name": "Year:"
+        }
+      },
+      {
+        "name": "zoom_level",
+        "value": 3000,
+        "bind": {
+          "input": "range",
+          "min": 3500,
+          "max": 60000,
+          "step": 100,
+          "name": "Zoom:"
+        }
+      }
+    ],
+    "projection": {"type": "equirectangular"},
+    "layer": [
+      {
+        "data": {
+          "url": "https://raw.githubusercontent.com/BrianMonash000/Actual_Assignment_2/main/Data/au-postcodes-Visvalingam-5.TopoJSON",
+          "format": {"type": "topojson", "feature": "au-postcodes-Visvalingam-5"}
+        },
+        "transform": [
+          {
+            "calculate": "'Data is not available in ' + datum.properties.POA_CODE",
+            "as": "note"
+          }
+        ],
+        "mark": {
+          "type": "geoshape",
+          "fill": "lightgray",
+          "stroke": "white",
+          "strokeWidth": 2
+        },
+        "encoding": {"tooltip": {"field": "note"}}
+      },
+      {
+        "data": {
+          "url": "https://raw.githubusercontent.com/BrianMonash000/Actual_Assignment_2/main/Data/Edited%20Melbourne%20Housing.csv"
+        },
+        "transform": [
+          {
+            "lookup": "Postcode",
+            "from": {
+              "data": {
+                "url": "https://raw.githubusercontent.com/BrianMonash000/Actual_Assignment_2/main/Data/au-postcodes-Visvalingam-5.TopoJSON",
+                "format": {
+                  "type": "topojson",
+                  "feature": "au-postcodes-Visvalingam-5"
+                }
+              },
+              "key": "properties.POA_CODE"
+            },
+            "as": "geo"
+          },
+          {"filter": "datum.Year == Year_selection"},
+          {
+            "joinaggregate": [
+              {"field": "Price", "op": "mean", "as": "Average Price in $"}
+            ],
+            "groupby": ["Postcode"]
+          }
+        ],
+        "mark": {"type": "geoshape", "stroke": "white"},
+        "encoding": {
+          "shape": {"field": "geo", "type": "geojson"},
+          "color": {
+            "field": "Average Price in $",
+            "type": "quantitative",
+            "scale": {"domain": [100000, 1500000], "scheme": "reds"},
+            "legend": {"format": ".2s"}
+          },
+          "tooltip": [
+            {
+              "field": "properties.POA_CODE",
+              "type": "nominal",
+              "title": "Postcode"
+            },
+            {"field": "Suburb", "type": "nominal", "title": "Suburb"},
+            {
+              "field": "Average Price in $",
+              "type": "quantitative",
+              "title": "Average Price in $"
+            }
+          ]
+        }
+      }
+    ],
+    "config": {}
+  }
